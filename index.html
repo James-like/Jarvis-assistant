@@ -43,6 +43,11 @@ function start() {
       let t = new Date().toLocaleTimeString();
       speak("The time is " + t);
     }
+      else if (command.includes("search")) {
+  let query = command.replace("search", "");
+  window.open("https://www.google.com/search?q=" + query);
+  speak("Searching for " + query);
+  }
     else if (command.includes("youtube")) {
       window.open("https://youtube.com");
       speak("Opening YouTube");
