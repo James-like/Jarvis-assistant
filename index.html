@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Jarvis Mobile</title>
+  <style>
+    body {
+      background: black;
+      color: cyan;
+      font-family: Arial;
+      text-align: center;
+      margin-top: 100px;
+    }
+    button {
+      padding: 15px;
+      font-size: 18px;
+    }
+  </style>
+</head>
+<body>
+
+<h1>Jarvis</h1>
+<button onclick="start()">Activate</button>
+<p id="text"></p>
+
+<script>
+const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+recognition.lang = "en-US";
+
+function speak(msg) {
+  let speech = new SpeechSynthesisUtterance(msg);
+  speech.rate = 1;
+  window.speechSynthesis.speak(speech);
+}
+
+function start() {
+  recognition.start();
+
+  recognition.onresult = function(event) {
+    let command = event.results[0][0].transcript;
+    document.getElementById("text").innerText = command;
+
+    if (command.includes("time")) {
+      let t = new Date().toLocaleTimeString();
+      speak("The time is " + t);
+    }
+    else if (command.includes("youtube")) {
+      window.open("https://youtube.com");
+      speak("Opening YouTube");
+    }
+    else if (command.includes("google")) {
+      window.open("https://google.com");
+      speak("Opening Google");
+    }
+    else {
+      speak("I am still learning.");
+    }
+  };
+}
+</script>
+
+</body>
+</html>
