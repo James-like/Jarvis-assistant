@@ -1,14 +1,14 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Jarvis Mobile</title>
+  <title>Jarvis</title>
   <style>
     body {
       background: black;
       color: cyan;
-      font-family: Arial;
       text-align: center;
       margin-top: 100px;
+      font-family: Arial;
     }
     button {
       padding: 15px;
@@ -16,6 +16,7 @@
     }
   </style>
 </head>
+
 <body>
 
 <h1>Jarvis</h1>
@@ -24,43 +25,52 @@
 
 <script>
 const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+
+// Settings
+recognition.continuous = true;
+recognition.interimResults = false;
 recognition.lang = "en-US";
 
+// Speak function
 function speak(msg) {
   let speech = new SpeechSynthesisUtterance(msg);
-  speech.rate = 1;
   window.speechSynthesis.speak(speech);
 }
 
+// Start button
 function start() {
+  speak("Listening");
   recognition.start();
 }
-recognition.continuous = true;
-recognition.interimResults = false;
-  
-  recognition.onresult = function(event) {
+
+// Main logic
+recognition.onresult = function(event) {
   let command = event.results[event.results.length - 1][0].transcript.toLowerCase();
 
   console.log(command);
+  document.getElementById("text").innerText = command;
 
+  // Wake word
   if (command.includes("jarvis")) {
 
     let cleanCommand = command.replace("jarvis", "").trim();
 
     speak("Yes?");
 
+    // Time
     if (cleanCommand.includes("time")) {
       let t = new Date().toLocaleTimeString();
       speak("The time is " + t);
     }
 
+    // Search
     else if (
       cleanCommand.includes("search") ||
       cleanCommand.includes("google") ||
       cleanCommand.includes("find")
     ) {
       let query = cleanCommand
-        .replace(/search|google|find|for/g, "")
+        .replace(/search|google|find|for|please|can you/g, "")
         .trim();
 
       if (query === "") {
@@ -71,6 +81,7 @@ recognition.interimResults = false;
       }
     }
 
+    // YouTube
     else if (cleanCommand.includes("youtube")) {
       window.open("https://youtube.com");
       speak("Opening YouTube");
@@ -81,35 +92,11 @@ recognition.interimResults = false;
     }
   }
 };
+
+// Keep listening
 recognition.onend = function() {
   recognition.start();
 };
-  
-    let command = event.results[0][0].transcript;
-    document.getElementById("text").innerText = command;
-
-    if (command.includes("time")) {
-      let t = new Date().toLocaleTimeString();
-      speak("The time is " + t);
-    }
-    else if (command.includes("search") || command.includes("google")) {
-  let query = command.replace("search", "").replace("google", "").trim();
-  window.open("https://www.google.com/search?q=" + query);
-  speak("Searching for " + query);
-    }
-    else if (command.includes("youtube")) {
-      window.open("https://youtube.com");
-      speak("Opening YouTube");
-    }
-    else if (command.includes("google")) {
-      window.open("https://google.com");
-      speak("Opening Google");
-    }
-    else {
-      speak("I am still learning.");
-    }
-  };
-}
 </script>
 
 </body>
