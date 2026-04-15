@@ -1,103 +1,133 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Jarvis</title>
+  <meta charset="UTF-8" />
+  <title>Jarvis Assistant</title>
   <style>
     body {
-      background: black;
-      color: cyan;
+      margin: 0;
+      height: 100vh;
+      background: radial-gradient(circle at center, #0b1a2a, #000);
+      color: #00ffe1;
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
       text-align: center;
-      margin-top: 100px;
-      font-family: Arial;
     }
+
+    h1 {
+      font-size: 3rem;
+      letter-spacing: 2px;
+      margin-bottom: 10px;
+    }
+
+    #status {
+      margin: 15px;
+      font-size: 1.2rem;
+      opacity: 0.8;
+    }
+
     button {
-      padding: 15px;
-      font-size: 18px;
+      padding: 12px 25px;
+      font-size: 1rem;
+      background: #00ffe1;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      color: #000;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      background: #00bba6;
+    }
+
+    .glow {
+      animation: glow 1.5s infinite alternate;
+    }
+
+    @keyframes glow {
+      from { text-shadow: 0 0 10px #00ffe1; }
+      to { text-shadow: 0 0 25px #00ffe1; }
     }
   </style>
 </head>
 
 <body>
+  <h1 class="glow">JARVIS</h1>
+  <div id="status">System idle… waiting for your questionable decisions.</div>
+  <button onclick="startListening()">Activate Voice</button>
 
-<h1>Jarvis</h1>
-<button onclick="alert('Button works')">Test</button>
-<p id="text"></p>
+  <script>
+    const status = document.getElementById("status");
 
-<script>
-const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-
-// Settings
-recognition.continuous = true;
-recognition.interimResults = false;
-recognition.lang = "en-US";
-
-// Speak function
-function speak(msg) {
-  let speech = new SpeechSynthesisUtterance(msg);
-  window.speechSynthesis.speak(speech);
-}
-
-// Start button
-function start() {
-  speak("Listening");
-  recognition.start();
-}
-
-// Main logic
-recognition.onresult = function(event) {
-  let command = event.results[event.results.length - 1][0].transcript.toLowerCase();
-
-  console.log(command);
-  document.getElementById("text").innerText = command;
-
-  // Wake word
-  if (command.includes("jarvis")) {
-
-    let cleanCommand = command.replace("jarvis", "").trim();
-
-    speak("Yes?");
-
-    // Time
-    if (cleanCommand.includes("time")) {
-      let t = new Date().toLocaleTimeString();
-      speak("The time is " + t);
+    function speak(text) {
+      const speech = new SpeechSynthesisUtterance(text);
+      speech.rate = 1;
+      speech.pitch = 1;
+      speech.volume = 1;
+      window.speechSynthesis.speak(speech);
+      status.innerText = "Jarvis: " + text;
     }
 
-    // Search
-    else if (
-      cleanCommand.includes("search") ||
-      cleanCommand.includes("google") ||
-      cleanCommand.includes("find")
-    ) {
-      let query = cleanCommand
-        .replace(/search|google|find|for|please|can you/g, "")
-        .trim();
+    function processCommand(command) {
+      command = command.toLowerCase();
 
-      if (query === "") {
-        speak("What should I search?");
-      } else {
-        window.open("https://www.google.com/search?q=" + encodeURIComponent(query));
-        speak("Searching for " + query);
+      if (command.includes("hello")) {
+        speak("Hello. I am online. Try not to break anything.");
+      }
+
+      else if (command.includes("time")) {
+        const now = new Date();
+        speak("Current time is " + now.toLocaleTimeString());
+      }
+
+      else if (command.includes("date")) {
+        const now = new Date();
+        speak("Today is " + now.toDateString());
+      }
+
+      else if (command.includes("your name")) {
+        speak("I am Jarvis. Not your emotional support chatbot.");
+      }
+
+      else if (command.includes("open youtube")) {
+        speak("Opening YouTube.");
+        window.open("https://youtube.com", "_blank");
+      }
+
+      else if (command.includes("google")) {
+        speak("Opening Google. As if you needed more information overload.");
+        window.open("https://google.com", "_blank");
+      }
+
+      else {
+        speak("Command not recognized. Impressive lack of clarity.");
       }
     }
 
-    // YouTube
-    else if (cleanCommand.includes("youtube")) {
-      window.open("https://youtube.com");
-      speak("Opening YouTube");
+    function startListening() {
+      const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+
+      recognition.lang = "en-US";
+      recognition.interimResults = false;
+
+      status.innerText = "Listening... try not to mumble.";
+
+      recognition.start();
+
+      recognition.onresult = (event) => {
+        const command = event.results[0][0].transcript;
+        status.innerText = "You said: " + command;
+        processCommand(command);
+      };
+
+      recognition.onerror = () => {
+        status.innerText = "Mic failed. Technology is judging you.";
+      };
     }
-
-    else {
-      speak("I did not understand.");
-    }
-  }
-};
-
-// Keep listening
-recognition.onend = function() {
-  recognition.start();
-};
-</script>
-
+  </script>
 </body>
 </html>
