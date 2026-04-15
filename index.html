@@ -36,6 +36,48 @@ function start() {
   recognition.start();
 
   recognition.onresult = function(event) {
+  let command = event.results[event.results.length - 1][0].transcript.toLowerCase();
+
+  console.log(command);
+
+  if (command.includes("jarvis")) {
+
+    let cleanCommand = command.replace("jarvis", "").trim();
+
+    speak("Yes?");
+
+    if (cleanCommand.includes("time")) {
+      let t = new Date().toLocaleTimeString();
+      speak("The time is " + t);
+    }
+
+    else if (
+      cleanCommand.includes("search") ||
+      cleanCommand.includes("google") ||
+      cleanCommand.includes("find")
+    ) {
+      let query = cleanCommand
+        .replace(/search|google|find|for/g, "")
+        .trim();
+
+      if (query === "") {
+        speak("What should I search?");
+      } else {
+        window.open("https://www.google.com/search?q=" + encodeURIComponent(query));
+        speak("Searching for " + query);
+      }
+    }
+
+    else if (cleanCommand.includes("youtube")) {
+      window.open("https://youtube.com");
+      speak("Opening YouTube");
+    }
+
+    else {
+      speak("I did not understand.");
+    }
+  }
+};
     let command = event.results[0][0].transcript;
     document.getElementById("text").innerText = command;
 
