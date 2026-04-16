@@ -1,235 +1,372 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Jarvis Assistant</title>
+<meta charset="UTF-8">
+<title>Jarvis Assistant</title>
 
-  <style>
-    body {
-      margin: 0;
-      height: 100vh;
-      background: radial-gradient(circle at center, #0b1a2a, #000);
-      color: #00ffe1;
-      font-family: Arial, sans-serif;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      text-align: center;
-      overflow: hidden;
-    }
+<style>
+body {
+  margin: 0;
+  height: 100vh;
+  background: radial-gradient(circle at center, #0b1a2a, #000);
+  color: #00ffe1;
+  font-family: Arial;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
 
-    h1 {
-      font-size: 3rem;
-      letter-spacing: 2px;
-      margin-bottom: 10px;
-    }
+/* Boot */
+#boot {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  background: black;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
 
-    #status {
-      margin: 15px;
-      font-size: 1.2rem;
-      opacity: 0.8;
-    }
+/* Title */
+h1 {
+  font-size: 3rem;
+}
 
-    button {
-      padding: 12px 25px;
-      font-size: 1rem;
-      background: #00ffe1;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      color: #000;
-      transition: 0.3s;
-    }
+.glow {
+  animation: glow 1.5s infinite alternate;
+}
 
-    button:hover {
-      background: #00bba6;
-    }
+@keyframes glow {
+  from { text-shadow: 0 0 10px #00ffe1; }
+  to { text-shadow: 0 0 25px #00ffe1; }
+}
 
-    .glow {
-      animation: glow 1.5s infinite alternate;
-    }
+/* Orb */
+.orb-container {
+  position: relative;
+  width: 200px;
+  height: 200px;
+}
 
-    @keyframes glow {
-      from { text-shadow: 0 0 10px #00ffe1; }
-      to { text-shadow: 0 0 25px #00ffe1; }
-    }
+#orb {
+  width: 100px;
+  height: 100px;
+  background: radial-gradient(circle, #00ffe1, #003f3a);
+  border-radius: 50%;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 30px #00ffe1;
+  transition: 0.2s;
+}
 
-    /* Orb container */
-    .orb-container {
-      position: relative;
-      width: 200px;
-      height: 200px;
-      margin: 20px;
-    }
+.listening {
+  box-shadow: 0 0 50px #00ffe1, 0 0 100px #00ffe1;
+}
 
-    /* Center glowing orb */
-    #orb {
-      width: 100px;
-      height: 100px;
-      background: radial-gradient(circle, #00ffe1, #003f3a);
-      border-radius: 50%;
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      box-shadow: 0 0 30px #00ffe1, 0 0 60px #00ffe1;
-      transition: transform 0.2s ease;
-    }
+/* Rings */
+.ring {
+  position: absolute;
+  width: 180px;
+  height: 180px;
+  border: 2px solid rgba(0,255,225,0.3);
+  border-radius: 50%;
+  top: 10px;
+  left: 10px;
+  animation: rotate 6s linear infinite;
+}
 
-    /* Rotating rings */
-    .ring {
-      position: absolute;
-      width: 180px;
-      height: 180px;
-      border: 2px solid rgba(0,255,225,0.3);
-      border-radius: 50%;
-      top: 10px;
-      left: 10px;
-      animation: rotate 6s linear infinite;
-    }
+.ring.delay {
+  animation-duration: 10s;
+  animation-direction: reverse;
+}
 
-    .ring.delay {
-      animation-duration: 10s;
-      animation-direction: reverse;
-    }
+@keyframes rotate {
+  to { transform: rotate(360deg); }
+}
 
-    @keyframes rotate {
-      from { transform: rotate(0deg); }
-      to { transform: rotate(360deg); }
-    }
+/* Pulse */
+.pulse {
+  animation: pulse 0.6s infinite alternate;
+}
 
-    /* Voice pulse */
-    .pulse {
-      animation: pulse 0.6s infinite alternate;
-    }
+@keyframes pulse {
+  from { transform: translate(-50%, -50%) scale(1); }
+  to { transform: translate(-50%, -50%) scale(1.2); }
+}
 
-    @keyframes pulse {
-      from { transform: translate(-50%, -50%) scale(1); }
-      to { transform: translate(-50%, -50%) scale(1.2); }
-    }
+/* Status */
+#status {
+  margin: 15px;
+}
 
-    /* Scan lines */
-    body::after {
-      content: "";
-      position: fixed;
-      width: 100%;
-      height: 100%;
-      background: repeating-linear-gradient(
-        rgba(0,255,225,0.05) 0px,
-        rgba(0,255,225,0.05) 1px,
-        transparent 2px,
-        transparent 4px
-      );
-      pointer-events: none;
-    }
-  </style>
+/* Visualizer */
+#visualizer {
+  margin-top: 20px;
+}
+
+/* Background */
+#bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: -1;
+}
+
+/* Scanlines */
+body::after {
+  content: "";
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  background: repeating-linear-gradient(
+    rgba(0,255,225,0.05) 0px,
+    rgba(0,255,225,0.05) 1px,
+    transparent 2px,
+    transparent 4px
+  );
+}
+</style>
 </head>
 
 <body>
 
-  <h1 class="glow">JARVIS</h1>
+<div id="boot">Initializing system...</div>
 
-  <div class="orb-container">
-    <div class="ring"></div>
-    <div class="ring delay"></div>
-    <div id="orb"></div>
-  </div>
+<canvas id="bg"></canvas>
 
-  <div id="status">System idle… waiting for your questionable decisions.</div>
+<h1 class="glow">JARVIS</h1>
 
-  <button onclick="startListening()">Activate Voice</button>
+<div class="orb-container">
+  <div class="ring"></div>
+  <div class="ring delay"></div>
+  <div id="orb"></div>
+</div>
 
-  <script>
-    const status = document.getElementById("status");
-    const orb = document.getElementById("orb");
+<div id="status">Passive mode... say "Jarvis"</div>
 
-    function speak(text) {
-      const speech = new SpeechSynthesisUtterance(text);
+<canvas id="visualizer" width="300" height="80"></canvas>
 
-      orb.classList.add("pulse");
+<script>
+const status = document.getElementById("status");
+const orb = document.getElementById("orb");
 
-      speech.onend = () => {
-        orb.classList.remove("pulse");
-      };
+let isAwake = false;
 
-      window.speechSynthesis.speak(speech);
-      status.innerText = "Jarvis: " + text;
+/* Boot */
+setTimeout(() => {
+  document.getElementById("boot").style.display = "none";
+}, 2000);
+
+/* Status helper */
+function setStatus(text) {
+  status.innerText = text;
+}
+
+/* Typing */
+function typeText(text) {
+  status.innerText = "";
+  let i = 0;
+  let interval = setInterval(() => {
+    status.innerText += text[i];
+    i++;
+    if (i >= text.length) clearInterval(interval);
+  }, 25);
+}
+
+/* Speak */
+function speak(text) {
+  let speech = new SpeechSynthesisUtterance(text);
+
+  orb.classList.add("pulse");
+
+  speech.onend = () => orb.classList.remove("pulse");
+
+  speechSynthesis.speak(speech);
+  typeText("Jarvis: " + text);
+}
+
+/* Commands */
+function processCommand(cmd) {
+
+  if (cmd.includes("hello")) speak("Hello.");
+
+  else if (cmd.includes("time"))
+    speak("Time is " + new Date().toLocaleTimeString());
+
+  else if (cmd.includes("date"))
+    speak("Today is " + new Date().toDateString());
+
+  else if (cmd.includes("youtube"))
+    window.open("https://youtube.com");
+
+  else if (cmd.includes("google"))
+    window.open("https://google.com");
+
+  else if (cmd.includes("whatsapp"))
+    window.open("https://web.whatsapp.com");
+
+  else if (cmd.includes("instagram"))
+    window.open("https://instagram.com");
+
+  else if (cmd.includes("play music"))
+    window.open("https://youtube.com/results?search_query=music");
+
+  else if (cmd.includes("weather"))
+    window.open("https://google.com/search?q=weather");
+
+  else if (cmd.includes("search")) {
+    let q = cmd.replace("search", "");
+    window.open("https://google.com/search?q=" + q);
+  }
+
+  else if (cmd.includes("who is") || cmd.includes("what is")) {
+    let q = cmd.replace("who is", "").replace("what is", "");
+    window.open("https://en.wikipedia.org/wiki/" + q);
+  }
+
+  else if (cmd.includes("calculate")) {
+    try {
+      let r = eval(cmd.replace("calculate", ""));
+      speak("Result is " + r);
+    } catch {
+      speak("Invalid math.");
+    }
+  }
+
+  else if (cmd.includes("alarm")) {
+    speak("Alarm set.");
+    setTimeout(() => speak("Alarm ringing."), 5000);
+  }
+
+  else if (cmd.includes("shutdown")) {
+    speak("Shutting down.");
+    document.body.innerHTML = "<h1 style='color:#00ffe1'>Offline</h1>";
+  }
+
+  else speak("Command not recognized.");
+}
+
+/* Visualizer */
+function startVisualizer(stream) {
+  let ctx = new AudioContext();
+  let analyser = ctx.createAnalyser();
+  let mic = ctx.createMediaStreamSource(stream);
+
+  mic.connect(analyser);
+  analyser.fftSize = 64;
+
+  let data = new Uint8Array(analyser.frequencyBinCount);
+  let canvas = document.getElementById("visualizer");
+  let c = canvas.getContext("2d");
+
+  function draw() {
+    requestAnimationFrame(draw);
+    analyser.getByteFrequencyData(data);
+    c.clearRect(0,0,canvas.width,canvas.height);
+
+    let w = canvas.width / data.length;
+
+    data.forEach((v,i)=>{
+      c.fillStyle="#00ffe1";
+      c.fillRect(i*w, canvas.height - v/2, w, v/2);
+    });
+  }
+
+  draw();
+}
+
+/* Background particles */
+const bg = document.getElementById("bg");
+const bctx = bg.getContext("2d");
+
+bg.width = innerWidth;
+bg.height = innerHeight;
+
+let particles = Array.from({length:50}, () => ({
+  x: Math.random()*bg.width,
+  y: Math.random()*bg.height,
+  vx: Math.random()-0.5,
+  vy: Math.random()-0.5
+}));
+
+function animateBG() {
+  bctx.clearRect(0,0,bg.width,bg.height);
+
+  particles.forEach(p=>{
+    p.x += p.vx;
+    p.y += p.vy;
+    bctx.fillStyle = "#00ffe1";
+    bctx.fillRect(p.x,p.y,2,2);
+  });
+
+  requestAnimationFrame(animateBG);
+}
+
+animateBG();
+
+/* Wake word system */
+function startListening() {
+
+  navigator.mediaDevices.getUserMedia({ audio: true })
+    .then(stream => startVisualizer(stream));
+
+  const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+
+  recognition.continuous = true;
+  recognition.lang = "en-US";
+
+  recognition.start();
+
+  setStatus("Passive mode... say 'Jarvis'");
+
+  recognition.onresult = (e) => {
+    let text = e.results[e.results.length - 1][0].transcript.toLowerCase();
+
+    console.log("Heard:", text);
+
+    if (!isAwake && text.includes("jarvis")) {
+      isAwake = true;
+
+      orb.classList.add("listening");
+      orb.style.transform = "translate(-50%, -50%) scale(1.4)";
+
+      speak("Yes?");
+      setStatus("Awake... listening");
+      return;
     }
 
-    function processCommand(command) {
-      command = command.toLowerCase();
+    if (isAwake) {
+      setStatus("Processing...");
 
-      if (command.includes("hello")) {
-        speak("Hello. I am online. Try not to break anything.");
-      }
+      typeText("You said: " + text);
+      processCommand(text);
 
-      else if (command.includes("time")) {
-        const now = new Date();
-        speak("Current time is " + now.toLocaleTimeString());
-      }
+      isAwake = false;
 
-      else if (command.includes("date")) {
-        const now = new Date();
-        speak("Today is " + now.toDateString());
-      }
+      orb.classList.remove("listening");
+      orb.style.transform = "translate(-50%, -50%) scale(1)";
 
-      else if (command.includes("your name")) {
-        speak("I am Jarvis. Not your emotional support chatbot.");
-      }
-
-      else if (command.includes("open youtube")) {
-        speak("Opening YouTube.");
-        window.open("https://youtube.com", "_blank");
-      }
-
-      else if (command.includes("google")) {
-        speak("Opening Google. As if you needed more information overload.");
-        window.open("https://google.com", "_blank");
-      }
-
-      else if (command.includes("search")) {
-        const query = command.replace("search", "").trim();
-
-        if (query) {
-          speak("Searching the internet. Try not to spiral.");
-          window.open(`https://www.google.com/search?q=${encodeURIComponent(query)}`, "_blank");
-        } else {
-          speak("Search what exactly? I can't read vibes yet.");
-        }
-      }
-
-      else {
-        speak("Command not recognized. Impressive lack of clarity.");
-      }
+      setStatus("Passive mode... say 'Jarvis'");
     }
+  };
 
-    function startListening() {
-      const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+  recognition.onerror = () => {
+    setStatus("Mic error... impressive.");
+  };
 
-      recognition.lang = "en-US";
-      recognition.interimResults = false;
+  recognition.onend = () => {
+    recognition.start();
+  };
+}
 
-      status.innerText = "Listening... try not to mumble.";
-      orb.style.transform = "translate(-50%, -50%) scale(1.3)";
-
-      recognition.start();
-
-      recognition.onresult = (event) => {
-        const command = event.results[0][0].transcript;
-        status.innerText = "You said: " + command;
-
-        orb.style.transform = "translate(-50%, -50%) scale(1)";
-        processCommand(command);
-      };
-
-      recognition.onerror = () => {
-        status.innerText = "Mic failed. Technology is judging you.";
-        orb.style.transform = "translate(-50%, -50%) scale(1)";
-      };
-    }
-  </script>
+/* Start automatically */
+startListening();
+</script>
 
 </body>
 </html>
-
