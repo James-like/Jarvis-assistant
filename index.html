@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <title>Jarvis Assistant</title>
+
   <style>
     body {
       margin: 0;
@@ -15,6 +16,7 @@
       justify-content: center;
       align-items: center;
       text-align: center;
+      overflow: hidden;
     }
 
     h1 {
@@ -52,22 +54,105 @@
       from { text-shadow: 0 0 10px #00ffe1; }
       to { text-shadow: 0 0 25px #00ffe1; }
     }
+
+    /* Orb container */
+    .orb-container {
+      position: relative;
+      width: 200px;
+      height: 200px;
+      margin: 20px;
+    }
+
+    /* Center glowing orb */
+    #orb {
+      width: 100px;
+      height: 100px;
+      background: radial-gradient(circle, #00ffe1, #003f3a);
+      border-radius: 50%;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      box-shadow: 0 0 30px #00ffe1, 0 0 60px #00ffe1;
+      transition: transform 0.2s ease;
+    }
+
+    /* Rotating rings */
+    .ring {
+      position: absolute;
+      width: 180px;
+      height: 180px;
+      border: 2px solid rgba(0,255,225,0.3);
+      border-radius: 50%;
+      top: 10px;
+      left: 10px;
+      animation: rotate 6s linear infinite;
+    }
+
+    .ring.delay {
+      animation-duration: 10s;
+      animation-direction: reverse;
+    }
+
+    @keyframes rotate {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    /* Voice pulse */
+    .pulse {
+      animation: pulse 0.6s infinite alternate;
+    }
+
+    @keyframes pulse {
+      from { transform: translate(-50%, -50%) scale(1); }
+      to { transform: translate(-50%, -50%) scale(1.2); }
+    }
+
+    /* Scan lines */
+    body::after {
+      content: "";
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      background: repeating-linear-gradient(
+        rgba(0,255,225,0.05) 0px,
+        rgba(0,255,225,0.05) 1px,
+        transparent 2px,
+        transparent 4px
+      );
+      pointer-events: none;
+    }
   </style>
 </head>
 
 <body>
+
   <h1 class="glow">JARVIS</h1>
+
+  <div class="orb-container">
+    <div class="ring"></div>
+    <div class="ring delay"></div>
+    <div id="orb"></div>
+  </div>
+
   <div id="status">System idle… waiting for your questionable decisions.</div>
+
   <button onclick="startListening()">Activate Voice</button>
 
   <script>
     const status = document.getElementById("status");
+    const orb = document.getElementById("orb");
 
     function speak(text) {
       const speech = new SpeechSynthesisUtterance(text);
-      speech.rate = 1;
-      speech.pitch = 1;
-      speech.volume = 1;
+
+      orb.classList.add("pulse");
+
+      speech.onend = () => {
+        orb.classList.remove("pulse");
+      };
+
       window.speechSynthesis.speak(speech);
       status.innerText = "Jarvis: " + text;
     }
@@ -102,15 +187,16 @@
         speak("Opening Google. As if you needed more information overload.");
         window.open("https://google.com", "_blank");
       }
-        else if (command.includes("search")) {
-  const query = command.replace("search", "").trim();
 
-  if (query) {
-    speak("Searching the internet. Try not to spiral.");
-    window.open(`https://www.google.com/search?q=${encodeURIComponent(query)}`, "_blank");
-  } else {
-    speak("Search what exactly? I can't read vibes yet.");
-  }
+      else if (command.includes("search")) {
+        const query = command.replace("search", "").trim();
+
+        if (query) {
+          speak("Searching the internet. Try not to spiral.");
+          window.open(`https://www.google.com/search?q=${encodeURIComponent(query)}`, "_blank");
+        } else {
+          speak("Search what exactly? I can't read vibes yet.");
+        }
       }
 
       else {
@@ -125,19 +211,24 @@
       recognition.interimResults = false;
 
       status.innerText = "Listening... try not to mumble.";
+      orb.style.transform = "translate(-50%, -50%) scale(1.3)";
 
       recognition.start();
 
       recognition.onresult = (event) => {
         const command = event.results[0][0].transcript;
         status.innerText = "You said: " + command;
+
+        orb.style.transform = "translate(-50%, -50%) scale(1)";
         processCommand(command);
       };
 
       recognition.onerror = () => {
         status.innerText = "Mic failed. Technology is judging you.";
+        orb.style.transform = "translate(-50%, -50%) scale(1)";
       };
     }
   </script>
+
 </body>
 </html>
